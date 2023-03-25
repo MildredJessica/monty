@@ -12,7 +12,7 @@ void read_file(char *filename, stack_t **stack)
 	char *line;
 	size_t i = 0;
 	int line_count = 1;
-	instruct_func s;
+	linstruct_func s;
 	int check;
 	int read;
 	FILE *file = fopen(filename, "r");
@@ -20,7 +20,6 @@ void read_file(char *filename, stack_t **stack)
 	if (file == NULL)
 	{
 		printf("Error: Can't open file %s\n", filename);
-		error_exit(stack);
 	}
 	while ((read = getline(&buffer, &i, file)) != -1)
 	{
@@ -83,4 +82,68 @@ instruct_func get_op_func(char *str)
 	}
 
 	return (instruct[i].f);
+}
+
+/**
+ * parse_line - Parses a line for an opcode and arguments
+ * @line: the line to be parsed
+ *
+ * Return: returns the opcode or null on failure
+ */
+char *parse_line(char *line)
+{
+	char *op_code;
+
+	op_code = strtok(line, "\n ");
+	if (op_code == NULL)
+		return (NULL);
+	return (op_code);
+}
+
+/**
+ * call_fun - Calls the required function.
+ * @f: Pointer to the function that is about to be called.
+ * @op: string representing the opcode.
+ * @val: string representing a numeric value.
+ * @ln: line numeber for the instruction.
+ * @format: Format specifier. If 0 Nodes will be entered as a stack.
+ * if 1 nodes will be entered as a queue.
+ */
+void call_fun(op_func f, char *op, char *val, int ln, int format)
+{
+stack_t *node;
+int flag;
+int i;
+
+flag = 1;
+if (strcmp(op, "push") == 0)
+{
+/*Checks if the number is negative and moves the val ptr*/
+if (val != NULL && val[0] == '-')
+{
+val = val + 1;
+flag = -1;
+}
+/*val is not a digit is the return value is 0*/
+if (val == NULL)
+{
+printf("L%d: usage: push integer\n", ln);
+exit(EXIT_FAILURE);
+}
+for (i = 0; val[i] != '\0'; i++)
+{
+if (isdigit(val[i]) == 0)
+{
+printf("L%d: usage: push integer\n",ln);
+exit(EXIT_FAILURE);
+}
+}
+node = create_node(atoi(val) * flag);
+if (format == 0)
+f(&node, ln);
+if (format == 1)
+_queue(&node, ln);
+}
+else
+f(&head, ln);
 }

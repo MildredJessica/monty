@@ -6,27 +6,33 @@
  * @n: The data
  * Return: A pointer to the linkedlist
  */
-void _push(stack_t **stack, int n)
+void _push(stack_t **new_node, __attribute__((unused))unsigned int ln)
 {
-stack_t *new_node, *tmp;
+stack_t *new;
+char *arg;
+int push_arg;
 
-new_node = malloc(sizeof(stack_t));
-
-if (new_node == NULL)
-exit(EXIT_FAILURE);
-new_node->prev = NULL;
-new_node->n = n;
-new_node->next = NULL;
-if (*stack == NULL)
+push_arg = 0;
+new = malloc(sizeof(stack_t));
+if (!new)
 {
-*stack = new_node;
-return;
+printf("Error: malloc failed\n");
+error_exit(stack);
 }
-tmp = *stack;
-while (tmp->next != NULL)
-tmp = tmp->next;
-tmp->next = new_node;
-new_node->prev = tmp;
+
+arg = strtok(NULL, "\n ");
+if (isnumber(arg) == 1 && arg != NULL)
+push_arg = atoi(arg);
+else
+{
+printf("L%d: usage: push integer\n", line_number);
+free_nodes();
+exit(EXIT_FAILURE);
+}
+if (sq_flag == 1)
+add_dnodeint_end(stack, push_arg);
+if (sq_flag == 0)
+add_dnodeint(stack, push_arg);
 }
 
 /**
@@ -57,13 +63,12 @@ stack_t *tmp = *stack;
 if (*stack == NULL)
 {
 printf("L%d: can't pint, stack empty", ln);
+free_nodes();
 exit(EXIT_FAILURE);
 }
-while (tmp->next != NULL)
-{
-tmp->prev = tmp;
-tmp = tmp->next;
-}
-tmp->prev->next = tmp->next;
+
+(*stack) = tmp->next;
+if ((*stack)!= NULL)
+(*stack)->prev = NULL;
 free(tmp);
 }
