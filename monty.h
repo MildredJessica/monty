@@ -39,24 +39,49 @@ typedef struct instruction_s
         void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-void _push(stack_t **new_node, __attribute__((unused))unsigned int ln);
-void _pall(stack_t **stack, __attribute__((unused))unsigned int line_number);
-stack_t *add_dnodeint_end(stack_t **head, const int n);
-int delete_dnodeint_at_index(stack_t **head, unsigned int index);
-stack_t *add_dnodeint(stack_t **head, const int n);
-/**void _pop(stack_t **stack, unsigned int ln);
+typedef void (*op_func)(stack_t **, unsigned int);
+
+void call_fun(op_func f, char *op, char *val, int ln, int format);
+void get_op_func(char *opcode, char *value, int ln, int format);
+int interpret_line(char *lineptr, int line_number, int format);
+void read_file(FILE *fd);
+void open_file(char *file_name);
+
+void _push(stack_t **new_node, unsigned int ln);
+void _pall(stack_t **stack, unsigned int line_number);
+void _pop(stack_t **stack, unsigned int ln);
 void _pint(stack_t **stack, unsigned int line_number);
+
+void add_to_queue(stack_t **new_node, unsigned int ln);
+
 void _swap(stack_t **stack, unsigned int line_number);
+void _nop(stack_t **stack, unsigned int ln);
+void _pchar(stack_t **stack, unsigned int line_number);
+void _pstr(stack_t **stack, unsigned int line_number);
+
+void _rotl(stack_t **stack, unsigned int line_number);
+void _rotr(stack_t **stack, unsigned int line_number);
+
+
 void _add(stack_t **stack, unsigned int ln);
 void _sub(stack_t **stack, unsigned int ln);
 void _div(stack_t **stack, unsigned int ln);
 void _mul(stack_t **stack, unsigned int ln);
 void _mod(stack_t **stack, unsigned int ln);
+
+stack_t *add_dnodeint_end(stack_t **head, const int n);
+int delete_dnodeint_at_index(stack_t **head, unsigned int index);
+stack_t *add_dnodeint(stack_t **head, const int n);
+
+stack_t *create_node(int n);
+void free_nodes(void);
+
+/**
+
+
 void read_file(char *filename, stack_t **stack);
-void _pchar(stack_t **stack, unsigned int line_number);
-void _pstr(stack_t **stack, unsigned int line_number);
-void _rotl(stack_t **stack, unsigned int line_number);
-void _rotr(stack_t **stack, unsigned int line_number);
+
+
 typedef void (*instruct_func) get_op_func(char *str);
 char *parse_line(char *line);
 void call_fun(op_func f, char *op, char *val, int ln, int format);

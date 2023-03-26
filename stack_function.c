@@ -8,31 +8,19 @@
  */
 void _push(stack_t **new_node, __attribute__((unused))unsigned int ln)
 {
-stack_t *new;
-char *arg;
-int push_arg;
+stack_t *tmp;
 
-push_arg = 0;
-new = malloc(sizeof(stack_t));
-if (!new)
-{
-printf("Error: malloc failed\n");
-error_exit(stack);
-}
-
-arg = strtok(NULL, "\n ");
-if (isnumber(arg) == 1 && arg != NULL)
-push_arg = atoi(arg);
-else
-{
-printf("L%d: usage: push integer\n", line_number);
-free_nodes();
-exit(EXIT_FAILURE);
-}
-if (sq_flag == 1)
-add_dnodeint_end(stack, push_arg);
-if (sq_flag == 0)
-add_dnodeint(stack, push_arg);
+	if (new_node == NULL || *new_node == NULL)
+		exit(EXIT_FAILURE);
+	if (head == NULL)
+	{
+		head = *new_node;
+		return;
+	}
+	tmp = head;
+	head = *new_node;
+	head->next = tmp;
+	tmp->prev = head;
 }
 
 /**
@@ -52,6 +40,23 @@ tmp = tmp->next;
 }
 
 /**
+ * _pint - Prints the value at the top of the stack, followed by a new line.
+ * @stack: Pointer to a pointer pointing to the stack.
+ * @line_number: Integer representing the line number of of the opcode.
+ */
+void _pint(stack_t **stack, unsigned int line_number)
+{
+if (*stack == NULL)
+{
+printf("L%d: can't pint, stack empty", line_number);
+free_nodes();
+exit(EXIT_FAILURE);
+}
+printf("%d\n", (*stack)->n);
+}
+
+
+/**
  * _pop - Removes the top element of the stack.
  * @stack: Pointer to a pointer pointing to the stack
  * @ln: Integer representing the line number of of the opcode
@@ -62,7 +67,7 @@ stack_t *tmp = *stack;
 
 if (*stack == NULL)
 {
-printf("L%d: can't pint, stack empty", ln);
+printf("L%d: can't pop an stack empty\n", ln);
 free_nodes();
 exit(EXIT_FAILURE);
 }
@@ -71,4 +76,28 @@ exit(EXIT_FAILURE);
 if ((*stack)!= NULL)
 (*stack)->prev = NULL;
 free(tmp);
+}
+
+/**
+ * add_to_queue - Adds a node to the queue.
+ * @new_node: Pointer to the new node.
+ * @ln: Interger representing the line number of of the opcode.
+ */
+void add_to_queue(stack_t **new_node, __attribute__((unused))unsigned int ln)
+{
+	stack_t *tmp;
+
+	if (new_node == NULL || *new_node == NULL)
+		exit(EXIT_FAILURE);
+	if (head == NULL)
+	{
+		head = *new_node;
+		return;
+	}
+	tmp = head;
+	while (tmp->next != NULL)
+		tmp = tmp->next;
+
+	tmp->next = *new_node;
+	(*new_node)->prev = tmp;
 }

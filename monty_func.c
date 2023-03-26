@@ -1,58 +1,123 @@
 #include "monty.h"
 
 /**
- * read_file - reads a bytecode file and runs commands
- * @filename: pathname to file
- * @stack: pointer to the top of the stack
- *
+ * open_file - Opens a file.
+ * @file_name: String with the name of the file.
  */
-void read_file(char *filename, stack_t **stack)
-{
-	char *buffer = NULL;
-	char *line;
-	size_t i = 0;
-	int line_count = 1;
-	linstruct_func s;
-	int check;
-	int read;
-	FILE *file = fopen(filename, "r");
 
-	if (file == NULL)
+void open_file(char *file_name)
+{
+	int file_check;
+	FILE *fd;
+
+	if (file_name == NULL)
 	{
-		printf("Error: Can't open file %s\n", filename);
+		printf("Error: Can't open file %s\n",file_name);
+		free_nodes();
+		exit(EXIT_FAILURE);
 	}
-	while ((read = getline(&buffer, &i, file)) != -1)
+	/*Checks if the file exists*/
+	file_check = access(file_name, R_OK);
+	if (file_check == -1)
 	{
-		line = parse_line(buffer);
-		if (line == NULL || line[0] == '#')
-		{
-			line_count++;
-			continue;
-		}
-		s = get_op_func(line);
-		if (s == NULL)
-		{
-			printf("L%d: unknown instruction %s\n", line_count, line);
-			error_exit(stack);
-		}
-		s(stack, line_count);
-		line_count++;
+		printf("Error: Can't open file %s\n",file_name);
+		free_nodes();
+		exit(EXIT_FAILURE);
 	}
-	free(buffer);
-	check = fclose(file);
-	if (check == -1)
-		exit(-1);
+	fd = fopen(file_name, "r");
+	if (fd == NULL)
+	{
+		printf("Error: Can't open file %s\n",file_name);
+		free_nodes();
+		exit(EXIT_FAILURE);
+	}
+
+	/*errors should be handled inside this function*/
+	read_file(fd);
+	/*might need to check for errors on closing a file.*/
+	fclose(fd);
 }
 
 /**
- * get_op_func -  checks opcode and returns the correct function
- * @str: the opcode
- *
- * Return: returns a function, or NULL on failure
+ * read_file - Reads the content of a file line by line.
+ * @fd: Pointer to a file descriptor of an open file
  */
-instruct_func get_op_func(char *str)
+
+void read_file(FILE *fd)
 {
-	int i;
+	int line_n;
+	int format;
+	char *lineprt;
+	size_t n;
+
+	lineprt = NULL;
+	n = 0;
+	format = 0;
+
+	if (fd == NULL)
+	{
+		printf("Error: Can't open file %s\n",fd);
+		free_nodes();
+		exit(EXIT_FAILURE);
+	}
+	/*Getting each line in the file*/
+	for (line_n = 1; getline(&lineprt, &n, fd) != EOF; line_n++)
+	{
+		format = interpret_line(lineprt, line_n, format);
+	}
+free(lineprt);
+}
+
+
+/**
+ * interpret_line - Separates each line into tokens to determine
+ * which function to call.
+ * @lineptr: String representing a line in a file.
+ * @line_number: Line number for the opcode.
+ * @format: Format specifier. If 0 Nodes will be entered as a stack.
+ * if 1 nodes will be entered as a queue.
+ * Return: Returns 0 if the opcode is stack. 1 if queue.
+ */
+int interpret_line(char *lineptr, int line_number, int format)
+{
+const char *delim;
+char *opcode;
+char *value;
+
+if (lineptr == NULL)
+{
+printf("Error: malloc failed\n");
+free_nodes();
+exit(EXIT_FAILURE);
+}
+delim = "\n ";
+opcode = strtok(lineptr, delim);
+
+/*hanlding blank lines*/
+if (opcode == NULL)
+return (format);
+value = strtok(NULL, delim);
+
+if (strcmp(opcode, "queue") == 0)
+		return (1);
+	else if (strcmp(opcode, "stack") == 0)
+		return (0);
+
+	get_op_func(opcode, value, line_number, format);
+	return (format);
+}
+
+/**
+ * get_op_func - Finds the appropite function to run the opcode instructions.
+ * @opcode: The operation code, It could be push, pall, ...
+ * @value: The possible value for the operation.
+ * @ln: Line number for the opcode.
+ * @format: Format specifier. If 0 Nodes will be entered as a stack.
+ * if 1 nodes will be entered as a queue.
+ */
+void get_op_func(char *opcode, char *value, int ln, int format)
+{
+	int i, flag;
 
 	instruction_t instruct[] = {
 		{"push", _push},
@@ -75,13 +140,24 @@ instruct_func get_op_func(char *str)
 		{NULL, NULL},
 	};
 
-	i = 0;
-	while (instruct[i].f != NULL && strcmp(instruct[i].opcode, str) != 0)
+	if (opcode[0] == '#')
+		return;
+	/*Iterates through list to find the right function*/
+	for (flag = 1, i = 0; instruct[i].opcode != NULL; i++)
 	{
-		i++;
+		/*When 0 found the right opcode*/
+		if (strcmp(opcode, instruct[i].opcode) == 0)
+		{
+			call_fun(instruct[i].f, opcode, value, ln, format);
+			flag = 0;
+		}
 	}
-
-	return (instruct[i].f);
+	if (flag == 1)
+	{
+		printf("L%d: unknown instruction %s\n", ln, opcode);
+		free_nodes();
+		exit(EXIT_FAILURE);
+	}
 }
 
 /**

@@ -18,7 +18,7 @@ free_nodes();
 exit(EXIT_FAILURE);
 }
 
-	read_file(argv[1], &stack);
+	read_file(argv[1]);
 	free_nodes();
 	return (0);
 }

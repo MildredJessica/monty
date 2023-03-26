@@ -1,26 +1,5 @@
 #include "monty.h"
 
-
-/**
- * _pint - Prints the value at the top of the stack, followed by a new line.
- * @stack: Pointer to a pointer pointing to the stack.
- * @line_number: Integer representing the line number of of the opcode.
- */
-void _pint(stack_t **stack, unsigned int line_number)
-{
-stack_t *tmp = *stack;
-
-if (*stack == NULL)
-{
-printf("L%d: can't pint, stack empty", line_number);
-exit(EXIT_FAILURE);
-}
-while (tmp->next != NULL)
-tmp = tmp->next;
-printf("%d\n", tmp->n);
-}
-
-
 /**
  * _swap - Swaps the top two elements of the stack.
  * @stack: Pointer to a pointer pointing to top node of the stack.
@@ -28,25 +7,28 @@ printf("%d\n", tmp->n);
  */
 void _swap(stack_t **stack, unsigned int line_number)
 {
-stack_t *tmp = *stack;
-int count = 0;
+int num;
 
-if (*stack == NULL)
+if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
 {
-printf("L%d: can't pint, stack empty", line_number);
+printf("L%d: can't swap, stack too short", line_number);
+free_nodes();
 exit(EXIT_FAILURE);
 }
-while (tmp->next != NULL)
-{
-count++;
-tmp->prev = tmp; 
-tmp->next = tmp->next;
+num = (*stack)->next->n;
+(*stack)->next->n = (*stack)->n;
+(*stack)->n = num;
 }
-if (count == 1)
-return;
-int k = tmp->prev->n;
-tmp->prev->n = tmp->n;
-tmp->n = k;
+
+/**
+ * nop - Doesn’t do anything
+ * @stack: pointer to linked list stack
+ * @ln: number of line opcode occurs on
+ */
+void nop(__attribute__((unused))stack_t **stack, 
+__attribute__((unused))unsigned int ln)
+{
+;
 }
 
 /**
@@ -60,7 +42,8 @@ void _pchar(stack_t **stack, unsigned int line_number)
 stack_t *tmp = *stack;
 if (*stack == NULL)
 {
-printf("L%d: can't pchar, value out of range", line_number);
+printf("L%d: can't pchar, stack empty", line_number);
+free_nodes();
 exit(EXIT_FAILURE);
 }
 while (tmp->next != NULL)
@@ -69,17 +52,20 @@ int value = tmp->n;
 if (value < 0 || value > 127)
 {
 printf("L%d: can't pchar, value out of range\n", line_number);
+free_nodes();
 exit(EXIT_FAILURE);
 }
 putchar(value);
 putchar("\n");
 }
 
+
 /**
  * _pstr - Prints string starting a top of stack
  * @stack: linked list for stack
+ * @line_number: Integer representing the line number of of the opcode.
  */
-void _pstr(stack_t **stack)
+void _pstr(stack_t **stack, __attribute__((unused))unsigned int line_number)
 {
 stack_t *tmp = *stack;
 int value;
