@@ -1,4 +1,6 @@
 #include "monty.h"
+#define  _GNU_SOURCE
+
 
 /**
  * open_file - Opens a file.
@@ -33,7 +35,7 @@ void open_file(char *file_name)
 	}
 
 	/*errors should be handled inside this function*/
-	read_file(fd);
+	read_file(fd, file_name);
 	/*might need to check for errors on closing a file.*/
 	fclose(fd);
 }
@@ -43,9 +45,9 @@ void open_file(char *file_name)
  * @fd: Pointer to a file descriptor of an open file
  */
 
-void read_file(FILE *fd)
+void read_file(FILE *fd, char *file_name)
 {
-	int line_n;
+	int line_n, gln;
 	int format;
 	char *lineprt;
 	size_t n;
@@ -56,12 +58,13 @@ void read_file(FILE *fd)
 
 	if (fd == NULL)
 	{
-		printf("Error: Can't open file %s\n",fd);
+		printf("Error: Can't open file %s\n",file_name);
 		free_nodes();
 		exit(EXIT_FAILURE);
 	}
+	gln = getline(&lineprt, &n, fd);
 	/*Getting each line in the file*/
-	for (line_n = 1; getline(&lineprt, &n, fd) != EOF; line_n++)
+	for (line_n = 1; gln != -1; line_n++)
 	{
 		format = interpret_line(lineprt, line_n, format);
 	}
@@ -82,7 +85,7 @@ int interpret_line(char *lineptr, int line_number, int format)
 {
 const char *delim;
 char *opcode;
-char *value;
+char *value, *last;
 
 if (lineptr == NULL)
 {
@@ -90,20 +93,21 @@ printf("Error: malloc failed\n");
 free_nodes();
 exit(EXIT_FAILURE);
 }
-delim = "\n ";
+delim = " ";
 opcode = strtok(lineptr, delim);
 
-/*hanlding blank lines*/
+/*handling blank lines*/
 if (opcode == NULL)
 return (format);
-value = strtok(NULL, delim);
+last = strrchr(lineptr, ' ');
+value = last + 1;
 
 if (strcmp(opcode, "queue") == 0)
 		return (1);
-	else if (strcmp(opcode, "stack") == 0)
-		return (0);
-
-	get_op_func(opcode, value, line_number, format);
+    else if (strcmp(opcode, "push") == 0)
+                return (0);
+    printf("POcode is %s and value is %s", opcode, value);
+    get_op_func(opcode, value, line_number, format);
 	return (format);
 }
 
@@ -135,8 +139,6 @@ void get_op_func(char *opcode, char *value, int ln, int format)
 		{"rotl", _rotl},
 		{"rotr", _rotr},
 		{"pstr", _pstr},
-		{"stack", _stack},
-		{"queue", _queue},
 		{NULL, NULL},
 	};
 
@@ -158,22 +160,6 @@ void get_op_func(char *opcode, char *value, int ln, int format)
 		free_nodes();
 		exit(EXIT_FAILURE);
 	}
-}
-
-/**
- * parse_line - Parses a line for an opcode and arguments
- * @line: the line to be parsed
- *
- * Return: returns the opcode or null on failure
- */
-char *parse_line(char *line)
-{
-	char *op_code;
-
-	op_code = strtok(line, "\n ");
-	if (op_code == NULL)
-		return (NULL);
-	return (op_code);
 }
 
 /**
@@ -216,10 +202,10 @@ exit(EXIT_FAILURE);
 }
 node = create_node(atoi(val) * flag);
 if (format == 0)
-f(&node, ln);
+_push(&node, ln);
 if (format == 1)
 _queue(&node, ln);
 }
 else
-f(&head, ln);
+f(&node, ln);
 }

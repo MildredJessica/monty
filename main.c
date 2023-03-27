@@ -1,5 +1,5 @@
 #include "monty.h"
-stack_t *head = NULL;
+stack_t *head = NULL; 
 
 /**
  * main - Entry Point
@@ -9,16 +9,13 @@ stack_t *head = NULL;
  */
 int main(int argc, char **argv)
 {
-stack_t *stack;
-
 if (argc < 2 || argc > 2)
 {
 printf("USAGE: monty file\n");
 free_nodes();
 exit(EXIT_FAILURE);
 }
-
-	read_file(argv[1]);
+        open_file(argv[1]);
 	free_nodes();
 	return (0);
 }
@@ -52,7 +49,11 @@ stack_t *create_node(int n)
 
 	node = malloc(sizeof(stack_t));
 	if (node == NULL)
-		err(4);
+	{
+		printf("Error: malloc failed\n");
+		free_nodes();
+		exit(EXIT_FAILURE);
+	}
 	node->next = NULL;
 	node->prev = NULL;
 	node->n = n;

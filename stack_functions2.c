@@ -25,10 +25,10 @@ num = (*stack)->next->n;
  * @stack: pointer to linked list stack
  * @ln: number of line opcode occurs on
  */
-void nop(__attribute__((unused))stack_t **stack, 
-__attribute__((unused))unsigned int ln)
+void _nop(stack_t **stack, unsigned int ln)
 {
-;
+	(void)ln;
+	(void)stack;
 }
 
 /**
@@ -40,6 +40,8 @@ __attribute__((unused))unsigned int ln)
 void _pchar(stack_t **stack, unsigned int line_number)
 {
 stack_t *tmp = *stack;
+int value;
+
 if (*stack == NULL)
 {
 printf("L%d: can't pchar, stack empty", line_number);
@@ -48,7 +50,7 @@ exit(EXIT_FAILURE);
 }
 while (tmp->next != NULL)
 tmp = tmp->next;
-int value = tmp->n;
+value = tmp->n;
 if (value < 0 || value > 127)
 {
 printf("L%d: can't pchar, value out of range\n", line_number);
@@ -56,7 +58,7 @@ free_nodes();
 exit(EXIT_FAILURE);
 }
 putchar(value);
-putchar("\n");
+printf("\n");
 }
 
 
@@ -78,5 +80,5 @@ break;
 putchar(value);
 tmp = tmp->next;
 }
-putchar("\n");
+printf("\n");
 }

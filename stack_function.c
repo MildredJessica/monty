@@ -1,26 +1,33 @@
 #include "monty.h"
-
+stack_t *stackk = NULL;
 /**
  * _push - Adds a node at the end of the list
- * @head: The linked list
+ * @stack: The linked list
  * @n: The data
  * Return: A pointer to the linkedlist
  */
-void _push(stack_t **new_node, __attribute__((unused))unsigned int ln)
+void _push(stack_t **new_node, __attribute__((unused))unsigned int n)
 {
-stack_t *tmp;
+	stack_t *tmp;
+
+	/*new_node = malloc(sizeof(stack_t));*/
 
 	if (new_node == NULL || *new_node == NULL)
 		exit(EXIT_FAILURE);
-	if (head == NULL)
+	/**new_node->prev = NULL;
+	new_node->n = n;
+	new_node->next = NULL;*/
+	if (stackk == NULL)
 	{
-		head = *new_node;
+		stackk = *new_node;
 		return;
 	}
-	tmp = head;
-	head = *new_node;
-	head->next = tmp;
-	tmp->prev = head;
+
+	tmp =stackk;
+	while (tmp->next != NULL)
+		tmp = tmp->next;
+	tmp->next = *new_node;
+	(*new_node)->prev = tmp;
 }
 
 /**
@@ -79,25 +86,11 @@ free(tmp);
 }
 
 /**
- * add_to_queue - Adds a node to the queue.
- * @new_node: Pointer to the new node.
- * @ln: Interger representing the line number of of the opcode.
+ * _queue - Adds a node to the queue.
+ * @stack: Pointer to the new node.
+ * @n: Interger representing the line number of of the opcode.
  */
-void add_to_queue(stack_t **new_node, __attribute__((unused))unsigned int ln)
+void _queue(stack_t **stack, unsigned int n)
 {
-	stack_t *tmp;
-
-	if (new_node == NULL || *new_node == NULL)
-		exit(EXIT_FAILURE);
-	if (head == NULL)
-	{
-		head = *new_node;
-		return;
-	}
-	tmp = head;
-	while (tmp->next != NULL)
-		tmp = tmp->next;
-
-	tmp->next = *new_node;
-	(*new_node)->prev = tmp;
+	_push(stack, n);
 }

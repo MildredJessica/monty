@@ -1,5 +1,6 @@
 #ifndef MONTY_H
 #define MONTY_H
+#define  _GNU_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,15 +45,15 @@ typedef void (*op_func)(stack_t **, unsigned int);
 void call_fun(op_func f, char *op, char *val, int ln, int format);
 void get_op_func(char *opcode, char *value, int ln, int format);
 int interpret_line(char *lineptr, int line_number, int format);
-void read_file(FILE *fd);
+void read_file(FILE *fd, char *file_name);
 void open_file(char *file_name);
 
-void _push(stack_t **new_node, unsigned int ln);
+void _push(stack_t **stack, unsigned int n);
 void _pall(stack_t **stack, unsigned int line_number);
 void _pop(stack_t **stack, unsigned int ln);
 void _pint(stack_t **stack, unsigned int line_number);
 
-void add_to_queue(stack_t **new_node, unsigned int ln);
+void _queue(stack_t **stack, unsigned int n);
 
 void _swap(stack_t **stack, unsigned int line_number);
 void _nop(stack_t **stack, unsigned int ln);
@@ -75,6 +76,9 @@ stack_t *add_dnodeint(stack_t **head, const int n);
 
 stack_t *create_node(int n);
 void free_nodes(void);
+
+char *parse_line(char *line);
+
 
 /**
 
